@@ -4,6 +4,18 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
+const dotenv = require('dotenv');
+
+// Import middleware
+const logger = require('./middleware/logger');
+const auth = require('./middleware/auth');
+const productRoutes = require('./routes/productRoutes');
+const errorHandler = require('./middleware/errorHandler');
+
+
+dotenv.config();
+// Use centralized DB connection helper
+const connectDB = require('./config/db');
 
 // Initialize Express app
 const app = express();
@@ -11,6 +23,18 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware setup
 app.use(bodyParser.json());
+app.use(logger);
+app.use(auth);
+
+// Use product routes
+app.use('/api/products', productRoutes);
+
+// Global error handler 
+app.use(errorHandler);
+
+// Connect to MongoDB using the shared helper in `config/db.js`
+connectDB();
+
 
 // Sample in-memory products database
 let products = [
@@ -42,7 +66,7 @@ let products = [
 
 // Root route
 app.get('/', (req, res) => {
-  res.send('Welcome to the Product API! Go to /api/products to see all products.');
+  res.send('Hello World!');
 });
 
 // TODO: Implement the following routes:
